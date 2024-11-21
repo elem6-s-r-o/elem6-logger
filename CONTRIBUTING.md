@@ -38,21 +38,43 @@
    - Dokumentace musí obsahovat příklady použití
    - Udržujte README.md aktuální
 
-## Spuštění testů lokálně
+## Nastavení vývojového prostředí
 
+1. **Instalace závislostí**
 ```bash
-# Instalace závislostí
+# Instalace projektu a vývojových závislostí
 pip install -e ".[dev]"
 
+# Instalace a nastavení pre-commit hooks
+pre-commit install
+```
+
+2. **Pre-commit hooks**
+Projekt používá pre-commit hooks pro automatické formátování kódu při commitu:
+- black: formátování Python kódu
+- isort: řazení importů
+
+Pre-commit hooks se spustí automaticky při každém commitu. Pokud je potřeba formátování opravit:
+1. Hook selže a zobrazí chyby
+2. Změny jsou automaticky opraveny
+3. Přidejte opravené soubory znovu do stage (`git add`)
+4. Opakujte commit
+
+## Spuštění testů a kontrol manuálně
+
+```bash
 # Spuštění testů
 pytest tests/ --cov=src --cov-report=term-missing
 
-# Kontrola formátování
+# Manuální spuštění formátování
 black .
 isort .
 
 # Typová kontrola
 mypy src tests
+
+# Spuštění všech pre-commit hooks
+pre-commit run --all-files
 ```
 
 ## Commit messages
