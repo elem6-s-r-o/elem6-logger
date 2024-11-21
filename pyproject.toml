@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "elem6-logger"
+version = "0.1.0"
+authors = [
+    { name="ELEM6 s.r.o.", email="info@elem6.cz" },
+]
+description = "Shared logging functionality for ELEM6 projects"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: System :: Logging",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/elem6-s-r-o/elem6-logger"
+"Bug Tracker" = "https://github.com/elem6-s-r-o/elem6-logger/issues"
