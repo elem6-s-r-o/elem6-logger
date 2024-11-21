@@ -50,3 +50,30 @@ jobs:
             echo "Tests must pass before merging to main"
             exit 1
           fi
+
+  create-tag:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Get version from pyproject.toml
+        id: get_version
+        run: |
+          VERSION=$(python -c "from configparser import ConfigParser; p = ConfigParser(); p.read('pyproject.toml'); print(eval(p.get('project', 'version')))")
+          echo "version=v${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Create and push tag
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -a ${{ steps.get_version.outputs.version }} -m "Release ${{ steps.get_version.outputs.version }}"
+          git push origin ${{ steps.get_version.outputs.version }}
