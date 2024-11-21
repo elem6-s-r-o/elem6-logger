@@ -21,11 +21,10 @@ wheels/
 *.egg
 
 # Virtual Environment
-.env
-.venv
-env/
 venv/
 ENV/
+env/
+.env/
 
 # IDE
 .idea/
@@ -34,18 +33,24 @@ ENV/
 *.swo
 *~
 
-# Logs
-logs/
-*.log
-
-# Test coverage
+# Testing
 .coverage
 coverage.xml
+.pytest_cache/
 htmlcov/
+
+# Logs
+*.log
+logs/
 
 # Distribution
 dist/
 build/
+*.egg-info/
 
-# Mac
+# mypy
+.mypy_cache/
+
+# System
 .DS_Store
+Thumbs.db

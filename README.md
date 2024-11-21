@@ -1,105 +1,123 @@
 # ELEM6 Logger
 
-[![PyPI version](https://badge.fury.io/py/elem6-logger.svg)](https://badge.fury.io/py/elem6-logger)
-[![Python Version](https://img.shields.io/pypi/pyversions/elem6-logger)](https://pypi.org/project/elem6-logger)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+Thread-safe singleton logger implementation s rozšířenými možnostmi pro Python 3.9+.
 
-A shared logging functionality for ELEM6 projects.
+## Vlastnosti
 
-## Features
+- Thread-safe singleton pattern
+- Flexibilní konfigurace (konzole/soubor)
+- Podpora pro extra pole v log zprávách
+- Automatické čištění starých logů
+- Dynamická změna úrovně logování za běhu
+- Plně typované (mypy)
+- 92% test coverage
 
-- Thread-safe singleton logger implementation
-- Configurable log formatting and handlers
-- Automatic log rotation and cleanup
-- Support for extra fields in log messages
-- Environment-aware configuration
-- Console and file output support
-
-## Installation
+## Instalace
 
 ```bash
 pip install elem6-logger
 ```
 
-## Usage
+## Použití
 
-Basic usage with default configuration:
-
-```python
-from elem6_logger import Elem6Logger
-
-# Initialize logger with default configuration
-Elem6Logger.initialize()
-
-# Get logger instance
-logger = Elem6Logger.get_logger(__name__)
-
-# Use logger
-logger.info("Hello, world!")
-logger.error("Something went wrong", extra={"user_id": 123})
-```
-
-Custom configuration:
+### Základní použití
 
 ```python
 from elem6_logger import Elem6Logger, LoggerConfig
 
-# Create custom configuration
+# Konfigurace loggeru
 config = LoggerConfig(
-    log_level="DEBUG",
-    log_dir="custom_logs",
-    retention_days=7,
-    environment="development",
-    extra_fields={"app_name": "my_app", "version": "1.0.0"}
+    log_level="INFO",
+    log_dir="logs",
+    add_console_handler=True,
+    add_file_handler=True
 )
 
-# Initialize logger with custom configuration
+# Inicializace loggeru
 Elem6Logger.initialize(config)
 
-# Get logger instance
-logger = Elem6Logger.get_logger(__name__)
+# Získání instance loggeru
+logger = Elem6Logger.get_logger("my_app")
 
-# Use logger
-logger.debug("Debug message")
+# Logování
+logger.info("Aplikace spuštěna")
+logger.debug("Debug informace")
+logger.warning("Varování")
+logger.error("Chyba")
 ```
 
-## Configuration Options
+### Extra pole v logu
 
-The `LoggerConfig` class supports the following options:
+```python
+config = LoggerConfig(
+    log_level="INFO",
+    extra_fields={
+        "app": "my_app",
+        "version": "1.0.0",
+        "environment": "production"
+    }
+)
 
-- `log_level`: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-- `log_dir`: Directory for log files
-- `module_name`: Module name for log files (defaults to script name)
-- `retention_days`: Number of days to keep log files
-- `format_string`: Log message format
-- `date_format`: Date format in log messages
-- `environment`: Environment name (production, development, etc.)
-- `add_console_handler`: Enable console output
-- `add_file_handler`: Enable file output
-- `extra_fields`: Additional fields to include in log messages
+Elem6Logger.initialize(config)
+logger = Elem6Logger.get_logger("my_app")
 
-## Log File Format
-
-Log files are named using the pattern: `{module_name}_{YYYYMMDD_HHMM}.log`
-
-Default log message format:
-```
-2024-03-14 12:34:56 - module_name - INFO - 1234 - 5678 - Message text
+# Log bude obsahovat extra pole
+logger.info("Zpráva")  # Obsahuje: app=my_app version=1.0.0 environment=production
 ```
 
-With extra fields:
+### Dynamická změna úrovně logování
+
+```python
+logger = Elem6Logger.get_logger("my_app")
+logger.info("Viditelná zpráva")
+logger.debug("Neviditelná debug zpráva")
+
+# Změna úrovně na DEBUG
+Elem6Logger.set_log_level("DEBUG")
+
+logger.debug("Nyní viditelná debug zpráva")
 ```
-2024-03-14 12:34:56 - module_name - INFO - 1234 - 5678 - Message text - app_name=my_app - version=1.0.0
+
+### Čištění starých logů
+
+```python
+config = LoggerConfig(
+    log_dir="logs",
+    retention_days=7  # Automaticky smaže logy starší než 7 dní
+)
+
+Elem6Logger.initialize(config)
 ```
 
-## Contributing
+## Vývoj
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests
-5. Submit a pull request
+Pro vývoj nainstalujte závislosti pro development:
 
-## License
+```bash
+pip install -e ".[dev]"
+```
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+### Spuštění testů
+
+```bash
+pytest tests/ --cov=src --cov-report=term-missing
+```
+
+### Kontrola kódu
+
+```bash
+# Formátování
+black .
+isort .
+
+# Typová kontrola
+mypy src tests
+```
+
+## Přispívání
+
+Přečtěte si [CONTRIBUTING.md](CONTRIBUTING.md) pro informace o tom, jak přispívat do projektu.
+
+## Licence
+
+Tento projekt je licencován pod MIT licencí - viz [LICENSE](LICENSE) soubor pro detaily.
