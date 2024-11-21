@@ -1,4 +1,16 @@
-"""Core logging functionality."""
+"""
+Core logging functionality for ELEM6 Logger.
+
+This module provides a thread-safe singleton logger implementation with enhanced capabilities
+such as automatic log rotation, dynamic log level changes, and support for extra fields in log messages.
+
+Example:
+    >>> from elem6_logger import Elem6Logger, LoggerConfig
+    >>> config = LoggerConfig(log_level="INFO", log_dir="logs")
+    >>> Elem6Logger.initialize(config)
+    >>> logger = Elem6Logger.get_logger("my_app")
+    >>> logger.info("Application started")
+"""
 
 import logging
 import os
@@ -11,7 +23,24 @@ from typing import Any, Dict, Optional, Set, Type
 
 @dataclass
 class LoggerConfig:
-    """Configuration for logger."""
+    """
+    Configuration class for ELEM6 Logger.
+
+    This class holds all configuration options for the logger, including log level,
+    directory for log files, retention period, and formatting options.
+
+    Attributes:
+        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL). Defaults to "INFO".
+        log_dir: Directory where log files will be stored. Defaults to "logs".
+        module_name: Optional name for the logging module. If None, derived from sys.argv[0].
+        retention_days: Number of days to keep log files. Files older than this will be deleted.
+        format_string: Format string for log messages. Includes timestamp, level, process ID, etc.
+        date_format: Format for timestamps in log messages.
+        environment: Environment name (e.g., "production", "development").
+        add_console_handler: Whether to output logs to console. Defaults to True.
+        add_file_handler: Whether to write logs to file. Defaults to True.
+        extra_fields: Optional dictionary of extra fields to include in every log message.
+    """
 
     log_level: str = "INFO"
     log_dir: str = "logs"
@@ -30,7 +59,27 @@ class LoggerConfig:
 class Elem6Logger:
     """
     Thread-safe singleton logger implementation with enhanced logging capabilities.
-    Can be shared between different projects.
+
+    This class provides a centralized logging solution that can be shared between
+    different parts of a project. It supports features like:
+    - Automatic log file rotation and cleanup
+    - Dynamic log level changes at runtime
+    - Extra fields in log messages
+    - Console and file output
+    - Environment-aware configuration
+
+    The logger follows the singleton pattern, ensuring that only one instance
+    exists throughout the application lifecycle.
+
+    Example:
+        >>> logger = Elem6Logger.get_logger("my_component")
+        >>> logger.info("Component initialized")
+        >>> logger.debug("Detailed debug information")
+
+        # With extra fields
+        >>> config = LoggerConfig(extra_fields={"version": "1.0.0"})
+        >>> Elem6Logger.initialize(config)
+        >>> logger.info("Starting up")  # Will include version=1.0.0 in output
     """
 
     _instance: Optional["Elem6Logger"] = None
@@ -40,11 +89,13 @@ class Elem6Logger:
     _loggers: Set[logging.Logger] = set()
 
     def __new__(cls: Type["Elem6Logger"]) -> "Elem6Logger":
+        """Create or return the singleton instance of Elem6Logger."""
         if cls._instance is None:
             cls._instance = super(Elem6Logger, cls).__new__(cls)
         return cls._instance
 
     def __init__(self) -> None:
+        """Initialize the logger if not already initialized."""
         if self._initialized:
             return
         self._initialized = True
@@ -54,8 +105,16 @@ class Elem6Logger:
         """
         Initialize logger with configuration.
 
+        This method sets up the logger with the provided configuration. If no configuration
+        is provided, default values from LoggerConfig are used. The method validates the
+        log level and configures both console and file handlers as specified.
+
         Args:
             config: Logger configuration. If None, default config will be used.
+
+        Raises:
+            ValueError: If an invalid log level is provided.
+            RuntimeError: If logger initialization fails.
         """
         instance = cls()
         if config is None:
@@ -71,7 +130,16 @@ class Elem6Logger:
         instance._configure_logging()
 
     def _configure_logging(self) -> None:
-        """Configure logging with the provided configuration."""
+        """
+        Configure logging with the provided configuration.
+
+        This internal method sets up the logging system according to the current
+        configuration. It creates necessary directories, configures handlers,
+        and sets up log formatting.
+
+        Raises:
+            RuntimeError: If called before logger initialization.
+        """
         if not self._config:
             raise RuntimeError("Logger not initialized. Call initialize() first.")
 
@@ -145,7 +213,14 @@ class Elem6Logger:
         )
 
     def _cleanup_old_logs(self, logs_dir: Path, retention_days: int) -> None:
-        """Clean up log files older than retention_days."""
+        """
+        Clean up log files older than retention_days.
+
+        Args:
+            logs_dir: Directory containing log files.
+            retention_days: Number of days to keep log files. Files older than this will be deleted.
+                          If negative, no files will be deleted.
+        """
         if retention_days < 0:
             return
 
@@ -160,7 +235,19 @@ class Elem6Logger:
 
     @classmethod
     def get_logger(cls, name: str) -> logging.Logger:
-        """Get a logger instance with the specified name."""
+        """
+        Get a logger instance with the specified name.
+
+        This method returns a logger instance configured with the current settings.
+        If the logger hasn't been initialized yet, it will be initialized with
+        default settings.
+
+        Args:
+            name: Name for the logger instance.
+
+        Returns:
+            logging.Logger: Configured logger instance.
+        """
         if cls._instance is None:
             cls()
         logger = logging.getLogger(name)
@@ -173,8 +260,14 @@ class Elem6Logger:
         """
         Dynamically update the log level.
 
+        This method allows changing the log level at runtime. The change affects
+        all existing loggers and handlers.
+
         Args:
             level: New log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+
+        Raises:
+            ValueError: If an invalid log level is provided.
         """
         numeric_level = getattr(logging, level.upper(), None)
         if not isinstance(numeric_level, int):
