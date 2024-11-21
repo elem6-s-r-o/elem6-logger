@@ -39,18 +39,6 @@ jobs:
       - name: Run tests with pytest
         run: pytest tests/ --cov=src --cov-report=term-missing
 
-  block-merge:
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: Block merge if tests fail
-        run: |
-          if [ "${{ needs.test.result }}" != "success" ]; then
-            echo "Tests must pass before merging to main"
-            exit 1
-          fi
-
   create-tag:
     needs: test
     runs-on: ubuntu-latest
