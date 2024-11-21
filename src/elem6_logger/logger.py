@@ -5,7 +5,7 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Set
 from dataclasses import dataclass
 
 
@@ -33,6 +33,8 @@ class Elem6Logger:
     _instance = None
     _initialized = False
     _config: Optional[LoggerConfig] = None
+    _numeric_level: int = logging.INFO
+    _loggers: Set[logging.Logger] = set()
 
     def __new__(cls):
         if cls._instance is None:
@@ -55,7 +57,14 @@ class Elem6Logger:
         instance = cls()
         if config is None:
             config = LoggerConfig()
+        
+        # Validate and set log level first
+        if config.log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
+            raise ValueError(f"Invalid log level: {config.log_level}")
+        cls._numeric_level = getattr(logging, config.log_level.upper(), logging.INFO)
+        
         cls._config = config
+        cls._loggers.clear()  # Reset loggers on initialization
         instance._configure_logging()
 
     def _configure_logging(self) -> None:
@@ -64,11 +73,6 @@ class Elem6Logger:
             raise RuntimeError("Logger not initialized. Call initialize() first.")
 
         config = self._config
-        
-        # Validate and set log level
-        if config.log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
-            raise ValueError(f"Invalid log level: {config.log_level}")
-        numeric_level = getattr(logging, config.log_level.upper(), logging.INFO)
 
         # Create logs directory
         logs_dir = Path(config.log_dir)
@@ -76,7 +80,7 @@ class Elem6Logger:
 
         # Configure root logger
         root_logger = logging.getLogger()
-        root_logger.setLevel(numeric_level)
+        root_logger.setLevel(self._numeric_level)
 
         # Remove existing handlers
         for handler in root_logger.handlers[:]:
@@ -111,19 +115,19 @@ class Elem6Logger:
                 encoding="utf-8",
             )
             file_handler.setFormatter(formatter)
-            file_handler.setLevel(numeric_level)
+            file_handler.setLevel(self._numeric_level)
             root_logger.addHandler(file_handler)
 
         # Add console handler if enabled
         if config.add_console_handler:
             console_handler = logging.StreamHandler(sys.stdout)
             console_handler.setFormatter(formatter)
-            console_handler.setLevel(numeric_level)
+            console_handler.setLevel(self._numeric_level)
             root_logger.addHandler(console_handler)
 
         # Clean up old log files
         if config.add_file_handler:
-            self._cleanup_old_logs(logs_dir, module_name, config.retention_days)
+            self._cleanup_old_logs(logs_dir, config.retention_days)
 
         # Log initial configuration
         root_logger.info(
@@ -137,23 +141,29 @@ class Elem6Logger:
             f"\n\tFile handler: {config.add_file_handler}"
         )
 
-    def _cleanup_old_logs(self, logs_dir: Path, module_name: str, retention_days: int) -> None:
+    def _cleanup_old_logs(self, logs_dir: Path, retention_days: int) -> None:
         """Clean up log files older than retention_days."""
+        if retention_days < 0:
+            return
+            
         current_time = datetime.now().timestamp()
-        for log_file in logs_dir.glob(f"{module_name}_*.log"):
-            file_age_days = (current_time - log_file.stat().st_mtime) / (24 * 3600)
-            if file_age_days > retention_days:
-                try:
+        for log_file in logs_dir.glob("*.log"):
+            try:
+                file_age_days = (current_time - log_file.stat().st_mtime) / (24 * 3600)
+                if file_age_days > retention_days:
                     log_file.unlink()
-                except Exception:
-                    pass
+            except Exception:
+                pass
 
     @classmethod
     def get_logger(cls, name: str) -> logging.Logger:
         """Get a logger instance with the specified name."""
         if cls._instance is None:
             cls()
-        return logging.getLogger(name)
+        logger = logging.getLogger(name)
+        logger.setLevel(cls._numeric_level)
+        cls._loggers.add(logger)
+        return logger
 
     @classmethod
     def set_log_level(cls, level: str) -> None:
@@ -169,9 +179,18 @@ class Elem6Logger:
             root_logger.error(f"Attempted to set invalid log level: {level}")
             raise ValueError(f"Invalid log level: {level}")
 
+        cls._numeric_level = numeric_level
+        
+        # Update root logger
         root_logger = logging.getLogger()
         root_logger.setLevel(numeric_level)
+        
+        # Update all handlers
         for handler in root_logger.handlers:
             handler.setLevel(numeric_level)
+            
+        # Update all tracked loggers
+        for logger in cls._loggers:
+            logger.setLevel(numeric_level)
 
         root_logger.info(f"Log level changed to: {level}")

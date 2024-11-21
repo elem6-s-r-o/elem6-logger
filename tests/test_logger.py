@@ -41,7 +41,8 @@ def test_default_initialization(clean_logger, temp_log_dir):
     Elem6Logger.initialize(config)
     logger = Elem6Logger.get_logger("test")
     
-    assert logger.level == logging.INFO
+    assert logger.isEnabledFor(logging.INFO)
+    assert not logger.isEnabledFor(logging.DEBUG)
     assert len(logging.getLogger().handlers) == 2  # Console and file handler
 
 
@@ -51,7 +52,7 @@ def test_custom_log_level(clean_logger, temp_log_dir):
     Elem6Logger.initialize(config)
     logger = Elem6Logger.get_logger("test")
     
-    assert logger.level == logging.DEBUG
+    assert logger.isEnabledFor(logging.DEBUG)
 
 
 def test_extra_fields(clean_logger, temp_log_dir):
@@ -107,10 +108,11 @@ def test_dynamic_log_level_change(clean_logger, temp_log_dir):
     Elem6Logger.initialize(config)
     logger = Elem6Logger.get_logger("test")
     
-    assert logger.level == logging.INFO
+    assert logger.isEnabledFor(logging.INFO)
+    assert not logger.isEnabledFor(logging.DEBUG)
     
     Elem6Logger.set_log_level("DEBUG")
-    assert logger.level == logging.DEBUG
+    assert logger.isEnabledFor(logging.DEBUG)
 
 
 def test_invalid_log_level(clean_logger, temp_log_dir):
@@ -147,5 +149,6 @@ def test_multiple_loggers_same_config(clean_logger, temp_log_dir):
     logger1 = Elem6Logger.get_logger("test1")
     logger2 = Elem6Logger.get_logger("test2")
     
-    assert logger1.level == logger2.level
+    assert logger1.isEnabledFor(logging.INFO) == logger2.isEnabledFor(logging.INFO)
+    assert logger1.isEnabledFor(logging.DEBUG) == logger2.isEnabledFor(logging.DEBUG)
     assert logging.getLogger().handlers == logging.getLogger().handlers

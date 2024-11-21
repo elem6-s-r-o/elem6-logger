@@ -26,3 +26,7 @@ classifiers = [
 [project.urls]
 "Homepage" = "https://github.com/elem6-s-r-o/elem6-logger"
 "Bug Tracker" = "https://github.com/elem6-s-r-o/elem6-logger/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["elem6_logger"]
