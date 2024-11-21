@@ -3,10 +3,10 @@
 import logging
 import os
 import sys
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, Any, Set
-from dataclasses import dataclass
+from typing import Any, Dict, Optional, Set
 
 
 @dataclass
