@@ -6,7 +6,7 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional, Set
+from typing import Any, Dict, Optional, Set, Type
 
 
 @dataclass
@@ -33,18 +33,18 @@ class Elem6Logger:
     Can be shared between different projects.
     """
 
-    _instance = None
-    _initialized = False
+    _instance: Optional["Elem6Logger"] = None
+    _initialized: bool = False
     _config: Optional[LoggerConfig] = None
     _numeric_level: int = logging.INFO
     _loggers: Set[logging.Logger] = set()
 
-    def __new__(cls):
+    def __new__(cls: Type["Elem6Logger"]) -> "Elem6Logger":
         if cls._instance is None:
             cls._instance = super(Elem6Logger, cls).__new__(cls)
         return cls._instance
 
-    def __init__(self):
+    def __init__(self) -> None:
         if self._initialized:
             return
         self._initialized = True

@@ -5,6 +5,7 @@ import os
 import sys
 import time
 from pathlib import Path
+from typing import Any, Generator
 
 import pytest
 
@@ -12,7 +13,7 @@ from elem6_logger import Elem6Logger, LoggerConfig
 
 
 @pytest.fixture
-def clean_logger():
+def clean_logger() -> Generator[None, None, None]:
     """Reset logger state before each test."""
     Elem6Logger._instance = None
     Elem6Logger._initialized = False
@@ -25,21 +26,21 @@ def clean_logger():
 
 
 @pytest.fixture
-def temp_log_dir(tmp_path):
+def temp_log_dir(tmp_path: Path) -> Path:
     """Create temporary log directory."""
     log_dir = tmp_path / "logs"
     log_dir.mkdir()
     return log_dir
 
 
-def test_singleton_pattern(clean_logger):
+def test_singleton_pattern(clean_logger: None) -> None:
     """Test that logger follows singleton pattern."""
     logger1 = Elem6Logger()
     logger2 = Elem6Logger()
     assert logger1 is logger2
 
 
-def test_default_initialization(clean_logger, temp_log_dir):
+def test_default_initialization(clean_logger: None, temp_log_dir: Path) -> None:
     """Test logger initialization with default config."""
     config = LoggerConfig(log_dir=str(temp_log_dir))
     Elem6Logger.initialize(config)
@@ -50,7 +51,7 @@ def test_default_initialization(clean_logger, temp_log_dir):
     assert len(logging.getLogger().handlers) == 2  # Console and file handler
 
 
-def test_custom_log_level(clean_logger, temp_log_dir):
+def test_custom_log_level(clean_logger: None, temp_log_dir: Path) -> None:
     """Test setting custom log level."""
     config = LoggerConfig(log_level="DEBUG", log_dir=str(temp_log_dir))
     Elem6Logger.initialize(config)
@@ -59,7 +60,7 @@ def test_custom_log_level(clean_logger, temp_log_dir):
     assert logger.isEnabledFor(logging.DEBUG)
 
 
-def test_extra_fields(clean_logger, temp_log_dir):
+def test_extra_fields(clean_logger: None, temp_log_dir: Path) -> None:
     """Test logging with extra fields."""
     config = LoggerConfig(
         log_dir=str(temp_log_dir), extra_fields={"app": "test_app", "version": "1.0.0"}
@@ -76,7 +77,7 @@ def test_extra_fields(clean_logger, temp_log_dir):
     assert "version=1.0.0" in log_content
 
 
-def test_log_file_creation(clean_logger, temp_log_dir):
+def test_log_file_creation(clean_logger: None, temp_log_dir: Path) -> None:
     """Test that log files are created correctly."""
     config = LoggerConfig(log_dir=str(temp_log_dir))
     Elem6Logger.initialize(config)
@@ -89,7 +90,7 @@ def test_log_file_creation(clean_logger, temp_log_dir):
     assert len(log_files) == 1
 
 
-def test_log_cleanup(clean_logger, temp_log_dir):
+def test_log_cleanup(clean_logger: None, temp_log_dir: Path) -> None:
     """Test cleanup of old log files."""
     # Create some old log files
     old_file = temp_log_dir / "test_20230101_0000.log"
@@ -102,7 +103,7 @@ def test_log_cleanup(clean_logger, temp_log_dir):
     assert not old_file.exists()
 
 
-def test_dynamic_log_level_change(clean_logger, temp_log_dir):
+def test_dynamic_log_level_change(clean_logger: None, temp_log_dir: Path) -> None:
     """Test changing log level dynamically."""
     config = LoggerConfig(log_dir=str(temp_log_dir))
     Elem6Logger.initialize(config)
@@ -115,14 +116,14 @@ def test_dynamic_log_level_change(clean_logger, temp_log_dir):
     assert logger.isEnabledFor(logging.DEBUG)
 
 
-def test_invalid_log_level(clean_logger, temp_log_dir):
+def test_invalid_log_level(clean_logger: None, temp_log_dir: Path) -> None:
     """Test handling of invalid log level."""
     with pytest.raises(ValueError):
         config = LoggerConfig(log_level="INVALID", log_dir=str(temp_log_dir))
         Elem6Logger.initialize(config)
 
 
-def test_console_only_config(clean_logger):
+def test_console_only_config(clean_logger: None) -> None:
     """Test logger with console output only."""
     config = LoggerConfig(add_file_handler=False)
     Elem6Logger.initialize(config)
@@ -130,7 +131,7 @@ def test_console_only_config(clean_logger):
     assert len(logging.getLogger().handlers) == 1  # Only console handler
 
 
-def test_file_only_config(clean_logger, temp_log_dir):
+def test_file_only_config(clean_logger: None, temp_log_dir: Path) -> None:
     """Test logger with file output only."""
     config = LoggerConfig(log_dir=str(temp_log_dir), add_console_handler=False)
     Elem6Logger.initialize(config)
@@ -138,7 +139,7 @@ def test_file_only_config(clean_logger, temp_log_dir):
     assert len(logging.getLogger().handlers) == 1  # Only file handler
 
 
-def test_multiple_loggers_same_config(clean_logger, temp_log_dir):
+def test_multiple_loggers_same_config(clean_logger: None, temp_log_dir: Path) -> None:
     """Test multiple logger instances share same configuration."""
     config = LoggerConfig(log_dir=str(temp_log_dir))
     Elem6Logger.initialize(config)
@@ -151,7 +152,7 @@ def test_multiple_loggers_same_config(clean_logger, temp_log_dir):
     assert logging.getLogger().handlers == logging.getLogger().handlers
 
 
-def test_cleanup_error_handling(clean_logger, temp_log_dir, monkeypatch):
+def test_cleanup_error_handling(clean_logger: None, temp_log_dir: Path, monkeypatch: Any) -> None:
     """Test error handling during log cleanup."""
     # Create a log file that will raise an error when accessed
     old_file = temp_log_dir / "test_20230101_0000.log"
@@ -159,10 +160,10 @@ def test_cleanup_error_handling(clean_logger, temp_log_dir, monkeypatch):
 
     original_stat = Path.stat
 
-    def mock_stat(self, *, follow_symlinks=True):
+    def mock_stat(self: Path) -> Any:
         if str(self).endswith("test_20230101_0000.log"):
             raise PermissionError("Access denied")
-        return original_stat(self, follow_symlinks=follow_symlinks)
+        return original_stat(self)
 
     # Mock Path.stat to raise an error only for our test file
     monkeypatch.setattr(Path, "stat", mock_stat)
@@ -171,7 +172,7 @@ def test_cleanup_error_handling(clean_logger, temp_log_dir, monkeypatch):
     Elem6Logger.initialize(config)  # Should not raise an exception
 
 
-def test_cleanup_unlink_error(clean_logger, temp_log_dir, monkeypatch):
+def test_cleanup_unlink_error(clean_logger: None, temp_log_dir: Path, monkeypatch: Any) -> None:
     """Test error handling during log file deletion."""
     # Create a log file that will raise an error when deleted
     old_file = temp_log_dir / "test_20230101_0000.log"
@@ -179,7 +180,7 @@ def test_cleanup_unlink_error(clean_logger, temp_log_dir, monkeypatch):
 
     original_unlink = Path.unlink
 
-    def mock_unlink(self, *, missing_ok=False):
+    def mock_unlink(self: Path, missing_ok: bool = False) -> None:
         if str(self).endswith("test_20230101_0000.log"):
             raise PermissionError("Cannot delete file")
         return original_unlink(self, missing_ok=missing_ok)
@@ -191,7 +192,7 @@ def test_cleanup_unlink_error(clean_logger, temp_log_dir, monkeypatch):
     Elem6Logger.initialize(config)  # Should not raise an exception
 
 
-def test_invalid_dynamic_log_level(clean_logger, temp_log_dir):
+def test_invalid_dynamic_log_level(clean_logger: None, temp_log_dir: Path) -> None:
     """Test setting invalid log level dynamically."""
     config = LoggerConfig(log_dir=str(temp_log_dir))
     Elem6Logger.initialize(config)
@@ -200,13 +201,13 @@ def test_invalid_dynamic_log_level(clean_logger, temp_log_dir):
         Elem6Logger.set_log_level("INVALID")
 
 
-def test_get_logger_without_initialization(clean_logger):
+def test_get_logger_without_initialization(clean_logger: None) -> None:
     """Test getting logger without initialization."""
     logger = Elem6Logger.get_logger("test")
     assert logger.getEffectiveLevel() == logging.INFO
 
 
-def test_negative_retention_days(clean_logger, temp_log_dir):
+def test_negative_retention_days(clean_logger: None, temp_log_dir: Path) -> None:
     """Test logger with negative retention days."""
     # Create some old log files
     old_file = temp_log_dir / "test_20230101_0000.log"
@@ -219,7 +220,7 @@ def test_negative_retention_days(clean_logger, temp_log_dir):
     assert old_file.exists()
 
 
-def test_successful_log_cleanup(clean_logger, temp_log_dir):
+def test_successful_log_cleanup(clean_logger: None, temp_log_dir: Path) -> None:
     """Test successful cleanup of old log files."""
     # Create an old log file and set its modification time to 2 days ago
     old_file = temp_log_dir / "test_old.log"
@@ -244,7 +245,7 @@ def test_successful_log_cleanup(clean_logger, temp_log_dir):
     assert new_file.exists()
 
 
-def test_module_name_from_argv(clean_logger, temp_log_dir):
+def test_module_name_from_argv(clean_logger: None, temp_log_dir: Path) -> None:
     """Test getting module name from sys.argv[0]."""
     # Save original argv
     original_argv = sys.argv[0]
@@ -265,7 +266,7 @@ def test_module_name_from_argv(clean_logger, temp_log_dir):
         sys.argv[0] = original_argv
 
 
-def test_module_name_from_argv_dash(clean_logger, temp_log_dir):
+def test_module_name_from_argv_dash(clean_logger: None, temp_log_dir: Path) -> None:
     """Test getting module name when argv starts with dash."""
     original_argv = sys.argv[0]
     try:
