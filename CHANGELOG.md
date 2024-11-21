@@ -20,16 +20,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PyPI package publishing
 
 ### Changed
-- N/A
+- Zjednodušen CI/CD workflow odstraněním block-merge jobu
+- Vylepšeny typové anotace v celém projektu pro lepší podporu mypy
 
 ### Deprecated
 - N/A
 
 ### Removed
-- N/A
+- Block-merge job z GitHub Actions workflow
 
 ### Fixed
-- N/A
+- Doplněny chybějící typové anotace v logger.py a test_logger.py
 
 ### Security
 - N/A

@@ -10,7 +10,7 @@ Thread-safe singleton logger implementation s rozšířenými možnostmi pro Pyt
 - Automatické čištění starých logů
 - Dynamická změna úrovně logování za běhu
 - Plně typované (mypy)
-- 92% test coverage
+- 98% test coverage
 
 ## Instalace
 

@@ -5,7 +5,6 @@
 1. **Nepřímé commity do main větve**
    - Všechny změny musí jít přes pull requesty
    - Přímé commity do main větve jsou zakázány
-   - Každý pull request musí projít code review
 
 2. **Proces vývoje**
    - Vytvořte novou větev pro vaše změny: `git checkout -b feature/nazev-zmeny`
@@ -21,12 +20,11 @@
    - Musí projít typovou kontrolou (mypy)
 
 4. **Code review**
-   - Každý pull request musí být schválen alespoň jedním reviewerem
-   - Reviewer by měl zkontrolovat:
-     - Funkcionalitu
-     - Testy
-     - Dokumentaci
-     - Kvalitu kódu
+   - Každý pull request by měl být zkontrolován z hlediska:
+     - Funkcionality
+     - Testů
+     - Dokumentace
+     - Kvality kódu
 
 5. **Testy**
    - Všechny nové funkce musí být otestovány
