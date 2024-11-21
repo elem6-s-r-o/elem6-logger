@@ -14,8 +14,24 @@ Thread-safe singleton logger implementation s rozšířenými možnostmi pro Pyt
 
 ## Instalace
 
+### Z PyPI (doporučeno)
+
 ```bash
 pip install elem6-logger
+```
+
+### Z GitHubu
+
+Pro instalaci nejnovější verze přímo z GitHubu:
+
+```bash
+pip install git+https://github.com/elem6-s-r-o/elem6-logger.git
+```
+
+Pro instalaci konkrétní verze (např. v1.1.0):
+
+```bash
+pip install git+https://github.com/elem6-s-r-o/elem6-logger.git@v1.1.0
 ```
 
 ## Použití
