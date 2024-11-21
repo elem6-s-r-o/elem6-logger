@@ -1,47 +1,47 @@
 # ELEM6 Logger
 
-Thread-safe singleton logger implementation s rozšířenými možnostmi pro Python 3.9+.
+Thread-safe singleton logger implementation with enhanced capabilities for Python 3.9+.
 
-## Vlastnosti
+## Features
 
 - Thread-safe singleton pattern
-- Flexibilní konfigurace (konzole/soubor)
-- Podpora pro extra pole v log zprávách
-- Automatické čištění starých logů
-- Dynamická změna úrovně logování za běhu
-- Plně typované (mypy)
+- Flexible configuration (console/file)
+- Support for extra fields in log messages
+- Automatic log rotation and cleanup
+- Dynamic log level changes at runtime
+- Fully typed (mypy)
 - 98% test coverage
 
-## Instalace
+## Installation
 
-### Z PyPI (doporučeno)
+### From PyPI (recommended)
 
 ```bash
 pip install elem6-logger
 ```
 
-### Z GitHubu
+### From GitHub
 
-Pro instalaci nejnovější verze přímo z GitHubu:
+To install the latest version directly from GitHub:
 
 ```bash
 pip install git+https://github.com/elem6-s-r-o/elem6-logger.git
 ```
 
-Pro instalaci konkrétní verze (např. v1.1.0):
+To install a specific version (e.g., v1.1.0):
 
 ```bash
 pip install git+https://github.com/elem6-s-r-o/elem6-logger.git@v1.1.0
 ```
 
-## Použití
+## Usage
 
-### Základní použití
+### Basic Usage
 
 ```python
 from elem6_logger import Elem6Logger, LoggerConfig
 
-# Konfigurace loggeru
+# Logger configuration
 config = LoggerConfig(
     log_level="INFO",
     log_dir="logs",
@@ -49,20 +49,20 @@ config = LoggerConfig(
     add_file_handler=True
 )
 
-# Inicializace loggeru
+# Initialize logger
 Elem6Logger.initialize(config)
 
-# Získání instance loggeru
+# Get logger instance
 logger = Elem6Logger.get_logger("my_app")
 
-# Logování
-logger.info("Aplikace spuštěna")
-logger.debug("Debug informace")
-logger.warning("Varování")
-logger.error("Chyba")
+# Logging
+logger.info("Application started")
+logger.debug("Debug information")
+logger.warning("Warning message")
+logger.error("Error occurred")
 ```
 
-### Extra pole v logu
+### Extra Fields in Logs
 
 ```python
 config = LoggerConfig(
@@ -77,63 +77,63 @@ config = LoggerConfig(
 Elem6Logger.initialize(config)
 logger = Elem6Logger.get_logger("my_app")
 
-# Log bude obsahovat extra pole
-logger.info("Zpráva")  # Obsahuje: app=my_app version=1.0.0 environment=production
+# Log will include extra fields
+logger.info("Message")  # Contains: app=my_app version=1.0.0 environment=production
 ```
 
-### Dynamická změna úrovně logování
+### Dynamic Log Level Changes
 
 ```python
 logger = Elem6Logger.get_logger("my_app")
-logger.info("Viditelná zpráva")
-logger.debug("Neviditelná debug zpráva")
+logger.info("Visible message")
+logger.debug("Invisible debug message")
 
-# Změna úrovně na DEBUG
+# Change level to DEBUG
 Elem6Logger.set_log_level("DEBUG")
 
-logger.debug("Nyní viditelná debug zpráva")
+logger.debug("Now visible debug message")
 ```
 
-### Čištění starých logů
+### Log Cleanup
 
 ```python
 config = LoggerConfig(
     log_dir="logs",
-    retention_days=7  # Automaticky smaže logy starší než 7 dní
+    retention_days=7  # Automatically deletes logs older than 7 days
 )
 
 Elem6Logger.initialize(config)
 ```
 
-## Vývoj
+## Development
 
-Pro vývoj nainstalujte závislosti pro development:
+To install development dependencies:
 
 ```bash
 pip install -e ".[dev]"
 ```
 
-### Spuštění testů
+### Running Tests
 
 ```bash
 pytest tests/ --cov=src --cov-report=term-missing
 ```
 
-### Kontrola kódu
+### Code Quality Checks
 
 ```bash
-# Formátování
+# Formatting
 black .
 isort .
 
-# Typová kontrola
+# Type checking
 mypy src tests
 ```
 
-## Přispívání
+## Contributing
 
-Přečtěte si [CONTRIBUTING.md](CONTRIBUTING.md) pro informace o tom, jak přispívat do projektu.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
-## Licence
+## License
 
-Tento projekt je licencován pod MIT licencí - viz [LICENSE](LICENSE) soubor pro detaily.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
