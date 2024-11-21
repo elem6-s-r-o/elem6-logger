@@ -1,87 +1,107 @@
 # Contributing to elem6-logger
 
-## Pravidla pro přispívání
+## Contribution Guidelines
 
-1. **Nepřímé commity do main větve**
-   - Všechny změny musí jít přes pull requesty
-   - Přímé commity do main větve jsou zakázány
-   - Každý pull request musí projít code review
+1. **No Direct Commits to Main Branch**
+   - All changes must go through pull requests
+   - Direct commits to main branch are prohibited
 
-2. **Proces vývoje**
-   - Vytvořte novou větev pro vaše změny: `git checkout -b feature/nazev-zmeny`
-   - Proveďte změny a otestujte je
-   - Commitněte změny s popisným commit message
-   - Vytvořte pull request do main větve
+2. **Development Process**
+   - Create a new branch for your changes: `git checkout -b feature/change-name`
+   - Make and test your changes
+   - Commit changes with descriptive commit messages
+   - Create a pull request to main branch
 
-3. **Požadavky na pull request**
-   - Musí projít všechny testy
-   - Musí mít 100% test coverage pro nový kód
-   - Musí projít kontrolou formátování (black)
-   - Musí projít kontrolou importů (isort)
-   - Musí projít typovou kontrolou (mypy)
+3. **Pull Request Requirements**
+   - Must pass all tests
+   - Must have 100% test coverage for new code
+   - Must pass formatting checks (black)
+   - Must pass import checks (isort)
+   - Must pass type checks (mypy)
 
-4. **Code review**
-   - Každý pull request musí být schválen alespoň jedním reviewerem
-   - Reviewer by měl zkontrolovat:
-     - Funkcionalitu
-     - Testy
-     - Dokumentaci
-     - Kvalitu kódu
+4. **Code Review**
+   - Each pull request should be reviewed for:
+     - Functionality
+     - Tests
+     - Documentation
+     - Code quality
 
-5. **Testy**
-   - Všechny nové funkce musí být otestovány
-   - Testy musí být čitelné a udržovatelné
-   - Používejte pytest fixtures pro sdílení test setup kódu
+5. **Tests**
+   - All new features must be tested
+   - Tests must be readable and maintainable
+   - Use pytest fixtures for shared test setup code
 
-6. **Dokumentace**
-   - Každá nová funkce musí být dokumentována
-   - Dokumentace musí obsahovat příklady použití
-   - Udržujte README.md aktuální
+6. **Documentation**
+   - All new features must be documented
+   - Documentation must include usage examples
+   - Keep README.md up to date
 
-## Spuštění testů lokálně
+## Setting Up Development Environment
 
+1. **Installing Dependencies**
 ```bash
-# Instalace závislostí
+# Install project and development dependencies
 pip install -e ".[dev]"
 
-# Spuštění testů
+# Install and set up pre-commit hooks
+pre-commit install
+```
+
+2. **Pre-commit Hooks**
+The project uses pre-commit hooks for automatic code formatting on commit:
+- black: Python code formatting
+- isort: import sorting
+
+Pre-commit hooks run automatically on each commit. If formatting needs to be fixed:
+1. Hook will fail and show errors
+2. Changes are automatically fixed
+3. Add fixed files back to staging (`git add`)
+4. Retry commit
+
+## Running Tests and Checks Manually
+
+```bash
+# Run tests
 pytest tests/ --cov=src --cov-report=term-missing
 
-# Kontrola formátování
+# Manual formatting
 black .
 isort .
 
-# Typová kontrola
+# Type checking
 mypy src tests
+
+# Run all pre-commit hooks
+pre-commit run --all-files
 ```
 
-## Commit messages
+## Commit Messages
 
-Používejte konvenci:
+Use the convention:
 
 ```
-<typ>: <popis>
+<type>: <description>
 
-<detailní popis>
+<detailed description>
 
-<číslo ticketu>
+<ticket number>
 ```
 
-Typy:
-- feat: nová funkce
-- fix: oprava chyby
-- docs: změny v dokumentaci
-- style: formátování, chybějící středníky, atd.
-- refactor: refaktoring kódu
-- test: přidání nebo úprava testů
-- chore: úpravy buildu, pomocné nástroje, atd.
+Types:
+- feat: new feature
+- fix: bug fix
+- docs: documentation changes
+- style: formatting, missing semicolons, etc.
+- refactor: code refactoring
+- test: adding or modifying tests
+- chore: build changes, auxiliary tools, etc.
 
-Příklad:
+Example:
 ```
-feat: přidání podpory pro extra pole v logu
+feat: add support for extra fields in logs
 
-- Přidána možnost konfigurace extra polí v LoggerConfig
-- Extra pole jsou přidána do každé log zprávy
-- Přidány testy pro ověření funkčnosti
+- Added extra fields configuration in LoggerConfig
+- Extra fields are added to each log message
+- Added tests to verify functionality
 
 Ticket: #123
